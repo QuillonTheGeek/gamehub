@@ -4,7 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ColorModeScript } from "@chakra-ui/react";
-import theme from "./theme";
+import theme from "./component/theme.ts";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
