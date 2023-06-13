@@ -16,18 +16,15 @@ export interface Game {
   metacritic: number;
 }
 
-interface FetchGames {
-  count: number;
-  results: Game[];
-}
-
 interface Genre {
   id: number,
-  name: string
+  name: string,
+   image_background: string;
 }
 interface FetchGenres{
   count: number;
-  results: Genre[]
+  results: Genre[],
+ 
 }
 
 function useGenres() {
