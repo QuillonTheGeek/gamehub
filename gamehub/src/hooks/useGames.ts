@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
 import apiClient from "../services/api-client";
-import axios from "axios";
+import axios, { CancelTokenSource } from "axios";
+import { Genre } from "./useGenres";
 
 export interface Platform {
-    id: number,
-    name: string,
-    slug: string
-}
-
- export interface Game {
   id: number;
   name: string;
-  background_image: string,
-  parent_platforms: {platform: Platform}[],
-  metacritic: number
+  slug: string;
+}
+
+export interface Game {
+  id: number;
+  name: string;
+  background_image: string;
+  parent_platforms: { platform: Platform }[];
+  metacritic: number;
 }
 
 interface FetchGames {
@@ -21,30 +22,42 @@ interface FetchGames {
   results: Game[];
 }
 
-function useGames() {
+function useGames(selectedGenre: Genre | null) {
   const [games, setGames] = useState<Game[]>([]);
-  const [error, setError] = useState('');
-  const [isLoading, setLoading]= useState(false)
+  const [error, setError] = useState("");
+  const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    const controller = new AbortController()
-    
-    setLoading(true)
+    const controller = axios.CancelToken.source();
+
+    setLoading(true);
+    let url = "/games";
+
+    const params: { genres?: number } = {}; // Define params object type
+
+    if (selectedGenre) {
+      params.genres = selectedGenre.id;
+    }
+
     apiClient
-      .get<FetchGames>("/games", {signal: controller.signal})
+      .get<FetchGames>(url, {
+        cancelToken: controller.token,
+        params: params,
+      })
       .then((res) => {
-      setGames(res.data.results)
-      setLoading(false)})
+        setGames(res.data.results);
+        setLoading(false);
+      })
       .catch(function (error) {
         if (axios.isCancel(error)) return;
-        setError(error.message)
+        setError(error.message);
         setLoading(false);
-        // setLoading(false);
       });
 
-      return () => controller.abort()
-  }, []);
-  return { games, error, isLoading }
+    return () => controller.cancel();
+  }, [selectedGenre]);
+
+  return { games, error, isLoading };
 }
 
-export default useGames
+export default useGames;
